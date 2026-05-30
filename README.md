@@ -4,18 +4,36 @@ Haven is a full-stack elder care platform that predicts emergencies before they 
 
 ---
 
-## The Problem
+## The Problem — We Don't Have a Fall Problem. We Have a Silence Problem.
 
-Every 11 seconds, an older adult is treated in an emergency room for a fall. Most emergencies are predictable — missed medications, unusual inactivity, declining wellness — but caregivers and first responders have no real-time visibility until it's too late.
+Every elder care emergency follows the same pattern — not a sudden catastrophe, but a quiet accumulation of warning signs that nobody saw in time:
 
-## The Solution
+- She missed her morning meds. *Nobody knew.*
+- She didn't open the fridge all day. *Nobody knew.*
+- She hadn't moved in 3 hours. *Nobody knew.*
+- Then she fell.
 
-Haven monitors Eleanor's daily patterns and acts before a crisis becomes a catastrophe:
+By the time 911 is called, the window to prevent serious harm has already closed.
 
-- Detects anomalies (missed meds, no activity, falls)
-- Notifies the **patient first** — before calling anyone else
-- Escalates intelligently: patient → care coordinator → family → 911
-- Gives first responders instant clinical access via a **QR code on her necklace**
+**Today's elder care is reactive by design.**
+Family checks in when they remember. Doctors see patients every 3 months. 911 only gets called after a crisis. There is no system watching the 23 hours and 45 minutes when Eleanor is alone — the space where every emergency actually begins.
+
+> Every 11 seconds, an older adult is treated in an ER for a fall. Most of those falls were predictable.
+
+## The Solution — Prevent the Emergency Before It Happens
+
+Haven watches **patterns**, not just events.
+
+A missed pill is a data point. A missed pill + no kitchen activity + no fridge opened + lower movement than yesterday = **a person who is declining right now**, before anything catastrophic happens.
+
+Haven acts on that signal before the fall, not after:
+
+- Notifies **Eleanor first** — *"Are you okay? Reply YES."*
+- Alerts her caregiver if she doesn't respond
+- Contacts family if the pattern keeps declining
+- Calls 911 only when necessary — but with full context already prepared
+
+**The goal isn't faster emergency response. The goal is to make most emergencies unnecessary.**
 
 ---
 

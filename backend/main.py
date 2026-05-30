@@ -384,6 +384,207 @@ def _notify_patient(patient: Patient) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Pitch / Problem Statement Page
+# ---------------------------------------------------------------------------
+
+
+@app.get("/pitch", tags=["meta"], response_class=HTMLResponse)
+def pitch_page():
+    return HTMLResponse(content="""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haven AI — The Problem We're Solving</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#060d1a;color:#f1f5f9;min-height:100vh}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 32px;text-align:center;position:relative}
+.slide+.slide{border-top:1px solid #1e293b}
+
+/* Slide 1 — Hook */
+.s1{background:linear-gradient(160deg,#060d1a 60%,#0f1f35)}
+.s1 .eyebrow{font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:#38bdf8;margin-bottom:16px}
+.s1 h1{font-size:clamp(2rem,5vw,3.8rem);font-weight:800;line-height:1.1;max-width:800px}
+.s1 h1 em{font-style:normal;color:#38bdf8}
+.s1 .sub{margin-top:20px;font-size:1.1rem;color:#64748b;max-width:560px}
+.stat{display:inline-block;margin-top:32px;background:#0f172a;border:1px solid #1d4ed8;border-radius:12px;padding:16px 32px;font-size:1rem;color:#93c5fd}
+.stat strong{font-size:2rem;display:block;color:#38bdf8}
+
+/* Slide 2 — Silence */
+.s2{background:#060d1a}
+.s2 h2{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:700;max-width:700px;margin-bottom:40px}
+.s2 h2 span{color:#ef4444}
+.timeline{display:flex;flex-direction:column;gap:0;max-width:560px;text-align:left}
+.tl-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #1e293b;align-items:flex-start}
+.tl-item:last-child{border:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.tl-text{font-size:.95rem;line-height:1.5}
+.tl-text .nobody{color:#ef4444;font-style:italic;font-size:.85rem;margin-top:2px}
+.gap-label{text-align:center;padding:24px 0;font-size:.85rem;color:#ef4444;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+
+/* Slide 3 — Gap */
+.s3{background:linear-gradient(160deg,#060d1a,#0a0f1a)}
+.s3 h2{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;max-width:700px;margin-bottom:12px}
+.s3 .desc{color:#64748b;font-size:1rem;max-width:560px;margin-bottom:40px;line-height:1.6}
+.gap-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:700px;width:100%}
+.gap-card{background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;text-align:center}
+.gap-card .icon{font-size:2rem;margin-bottom:8px}
+.gap-card .label{font-size:.85rem;color:#94a3b8;line-height:1.4}
+.gap-card .val{font-size:1.5rem;font-weight:700;color:#ef4444;margin-bottom:4px}
+.alone{margin-top:32px;background:#1a0a0a;border:1px solid #dc2626;border-radius:12px;padding:20px 32px;max-width:560px;font-size:1rem;color:#fca5a5;line-height:1.6}
+.alone strong{font-size:1.4rem;display:block;color:#ef4444;margin-bottom:4px}
+
+/* Slide 4 — Haven */
+.s4{background:linear-gradient(160deg,#060d1a,#071a14)}
+.s4 h2{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;max-width:700px;margin-bottom:8px}
+.s4 .tagline{color:#22c55e;font-size:1rem;margin-bottom:40px}
+.ladder{display:flex;flex-direction:column;gap:12px;max-width:560px;width:100%;text-align:left}
+.rung{display:flex;align-items:center;gap:16px;background:#0f172a;border-radius:12px;padding:16px 20px;border-left:3px solid}
+.rung .step{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.6;width:52px;flex-shrink:0}
+.rung .content .title{font-size:.95rem;font-weight:600;margin-bottom:2px}
+.rung .content .detail{font-size:.8rem;color:#64748b}
+.goal{margin-top:32px;max-width:560px;background:#071a14;border:1px solid #15803d;border-radius:12px;padding:20px 24px;font-size:1rem;color:#86efac;line-height:1.6;font-style:italic}
+
+/* Slide 5 — CTA */
+.s5{background:linear-gradient(160deg,#060d1a,#07101a)}
+.s5 h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;max-width:700px;margin-bottom:16px}
+.s5 h2 em{font-style:normal;color:#38bdf8}
+.s5 .sub{color:#64748b;font-size:1rem;max-width:500px;margin-bottom:40px;line-height:1.6}
+.links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.link-btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:600;font-size:.9rem;text-decoration:none;transition:opacity .15s}
+.link-btn:hover{opacity:.85}
+.btn-primary{background:#38bdf8;color:#060d1a}
+.btn-secondary{background:#0f172a;color:#94a3b8;border:1px solid #1e293b}
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Hook -->
+<div class="slide s1">
+  <div class="eyebrow">Haven AI — Hackathon 2026</div>
+  <h1>We don't have a fall problem.<br>We have a <em>silence problem.</em></h1>
+  <p class="sub">Every elder care emergency was preceded by hours of warning signs that nobody saw in time.</p>
+  <div class="stat">
+    <strong>Every 11 seconds</strong>
+    an older adult is treated in an ER for a fall
+  </div>
+</div>
+
+<!-- Slide 2: The silence -->
+<div class="slide s2">
+  <h2>The warnings were always there.<br><span>Nobody was watching.</span></h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#fbbf24"></div>
+      <div class="tl-text">
+        <div>7:14am — Eleanor woke up</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#f59e0b"></div>
+      <div class="tl-text">
+        <div>9:31am — Pill box opened. No pills dispensed.</div>
+        <div class="nobody">Nobody knew.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#ef4444"></div>
+      <div class="tl-text">
+        <div>11:30am — No kitchen activity for 4 hours. No fridge opened.</div>
+        <div class="nobody">Nobody knew.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#dc2626"></div>
+      <div class="tl-text">
+        <div>11:42am — Fall detected. No movement for 4 minutes.</div>
+        <div class="nobody">Nobody knew — until it was too late.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 3: The gap -->
+<div class="slide s3">
+  <h2>Today's elder care is reactive by design.</h2>
+  <p class="desc">There is no system watching the space between touchpoints — the 23 hours and 45 minutes when Eleanor is alone.</p>
+  <div class="gap-cards">
+    <div class="gap-card">
+      <div class="icon">👨‍👩‍👧</div>
+      <div class="val">Rarely</div>
+      <div class="label">Family checks in when they remember</div>
+    </div>
+    <div class="gap-card">
+      <div class="icon">🩺</div>
+      <div class="val">90 days</div>
+      <div class="label">Average time between doctor visits</div>
+    </div>
+    <div class="gap-card">
+      <div class="icon">🚑</div>
+      <div class="val">After</div>
+      <div class="label">911 only called after the crisis</div>
+    </div>
+  </div>
+  <div class="alone">
+    <strong>23h 45m</strong>
+    The average elder spends alone each day — completely unmonitored between check-ins.
+  </div>
+</div>
+
+<!-- Slide 4: Haven's answer -->
+<div class="slide s4">
+  <h2>Haven watches the silence.</h2>
+  <p class="tagline">And acts before the silence becomes a tragedy.</p>
+  <div class="ladder">
+    <div class="rung" style="border-color:#38bdf8">
+      <div class="step">Step 0</div>
+      <div class="content">
+        <div class="title" style="color:#7dd3fc">Ask Eleanor first</div>
+        <div class="detail">"Hi Eleanor, are you okay? Reply YES." — 20 minute window</div>
+      </div>
+    </div>
+    <div class="rung" style="border-color:#7c3aed">
+      <div class="step">Step 1</div>
+      <div class="content">
+        <div class="title" style="color:#c4b5fd">Care Coordinator</div>
+        <div class="detail">No response — coordinator alerted with full context</div>
+      </div>
+    </div>
+    <div class="rung" style="border-color:#f59e0b">
+      <div class="step">Step 2</div>
+      <div class="content">
+        <div class="title" style="color:#fde68a">Family — Sarah</div>
+        <div class="detail">Score still declining — daughter notified immediately</div>
+      </div>
+    </div>
+    <div class="rung" style="border-color:#ef4444">
+      <div class="step">Step 3</div>
+      <div class="content">
+        <div class="title" style="color:#fca5a5">911 — With Full Context</div>
+        <div class="detail">Paramedic scans QR on Eleanor's necklace → full clinical card in 5 seconds</div>
+      </div>
+    </div>
+  </div>
+  <div class="goal">"The goal isn't faster emergency response.<br>The goal is to make most emergencies unnecessary."</div>
+</div>
+
+<!-- Slide 5: CTA -->
+<div class="slide s5">
+  <h2>Haven is <em>predictive</em> care.<br>Not reactive care.</h2>
+  <p class="sub">Built with FastAPI, React 19, real-time sensor simulation, emergency QR access, and a HIPAA-compliant audit trail.</p>
+  <div class="links">
+    <a href="/demo" class="link-btn btn-primary">Live Backend Dashboard</a>
+    <a href="/architecture" class="link-btn btn-secondary">Architecture Map</a>
+    <a href="/docs" class="link-btn btn-secondary">API Docs</a>
+  </div>
+</div>
+
+</body>
+</html>""")
+
+
+# ---------------------------------------------------------------------------
 # Architecture Visual Page
 # ---------------------------------------------------------------------------
 
