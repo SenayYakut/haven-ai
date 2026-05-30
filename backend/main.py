@@ -384,6 +384,316 @@ def _notify_patient(patient: Patient) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Architecture Visual Page
+# ---------------------------------------------------------------------------
+
+
+@app.get("/architecture", tags=["meta"], response_class=HTMLResponse)
+def architecture_page():
+    """Interactive visual map of Haven's agentic backend architecture."""
+    return HTMLResponse(content="""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haven AI — Backend Architecture</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#060d1a;color:#f1f5f9;min-height:100vh;overflow-x:hidden}
+header{padding:32px 40px 0;text-align:center}
+header h1{font-size:2rem;font-weight:700;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:#64748b;margin-top:6px;font-size:.95rem}
+.canvas{position:relative;width:100%;max-width:1100px;margin:40px auto;padding:0 24px 80px}
+
+/* ── Agent cards ── */
+.agent{position:absolute;border-radius:14px;padding:16px 18px;border:1px solid;cursor:pointer;transition:transform .2s,box-shadow .2s;z-index:2}
+.agent:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.agent h3{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.agent p{font-size:.75rem;line-height:1.4;opacity:.75}
+.badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:6px}
+
+/* colours */
+.sensor   {background:#0c1a2e;border-color:#1d4ed8;color:#93c5fd}
+.score    {background:#0c1f14;border-color:#15803d;color:#86efac}
+.anomaly  {background:#1c1207;border-color:#d97706;color:#fde68a}
+.escalation{background:#1a0a0a;border-color:#dc2626;color:#fca5a5}
+.notify   {background:#150d24;border-color:#7c3aed;color:#c4b5fd}
+.qr       {background:#071a1a;border-color:#0d9488;color:#5eead4}
+.audit    {background:#121212;border-color:#475569;color:#94a3b8}
+.patient  {background:#0f172a;border-color:#38bdf8;color:#7dd3fc}
+
+/* SVG arrows layer */
+svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+
+/* Pulse animation on sensors */
+@keyframes pulse-dot{0%,100%{opacity:1;r:4}50%{opacity:.4;r:6}}
+.pulse-dot{animation:pulse-dot 2s infinite}
+
+/* Flow label */
+.flow-label{font-size:.68rem;fill:#64748b}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:20px auto 0;max-width:900px;padding:0 24px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#94a3b8}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* Step cards at bottom */
+.steps{max-width:1100px;margin:0 auto 60px;padding:0 24px}
+.steps h2{font-size:1.1rem;font-weight:600;color:#94a3b8;margin-bottom:16px;text-align:center;letter-spacing:.05em;text-transform:uppercase}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.step-card{background:#0f172a;border-radius:12px;padding:16px;border-left:3px solid}
+.step-card .num{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-bottom:4px}
+.step-card .title{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.step-card .desc{font-size:.75rem;color:#64748b;line-height:1.4}
+.s0{border-color:#38bdf8}.s1{border-color:#7c3aed}.s2{border-color:#f59e0b}.s3{border-color:#ef4444}.s4{border-color:#dc2626}
+
+/* tooltip */
+.tooltip{position:fixed;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 16px;max-width:260px;font-size:.8rem;line-height:1.5;color:#f1f5f9;pointer-events:none;z-index:100;opacity:0;transition:opacity .15s;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.tooltip.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Haven AI — Agentic Backend Architecture</h1>
+  <p>Hover any agent to learn what it does · Every box is a live FastAPI component</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>Sensor Agents</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#15803d"></div>Wellness Engine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Anomaly Detection</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Escalation Orchestrator</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Notification Agent</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0d9488"></div>QR Access Agent</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#475569"></div>Audit Agent</div>
+</div>
+
+<!-- Diagram canvas — positions are % based via inline style -->
+<div class="canvas" id="canvas" style="height:620px">
+
+  <!-- Row 1: Sensors -->
+  <div class="agent sensor" style="left:2%;top:2%;width:15%"
+    data-tip="Smart Watch Agent&#10;Monitors movement, detects falls via accelerometer, tracks activity gaps. Streams events to the Wellness Engine every 30 seconds.">
+    <h3>⌚ Watch</h3><p>Motion · Fall detect · Activity</p>
+    <span class="badge" style="background:#1d4ed8;color:#bfdbfe">SENSOR</span>
+  </div>
+
+  <div class="agent sensor" style="left:20%;top:2%;width:15%"
+    data-tip="Pill Box Agent&#10;Detects whether the pill compartment was opened and pills dispensed. Flags missed doses and forwards to Anomaly Detection.">
+    <h3>💊 Pill Box</h3><p>Dose dispensed · Missed meds</p>
+    <span class="badge" style="background:#1d4ed8;color:#bfdbfe">SENSOR</span>
+  </div>
+
+  <div class="agent sensor" style="left:38%;top:2%;width:15%"
+    data-tip="Motion Sensor Agent&#10;Passive infrared sensors in kitchen, living room, bathroom. Detects inactivity windows beyond normal baseline patterns.">
+    <h3>🏠 Motion</h3><p>Room activity · Inactivity windows</p>
+    <span class="badge" style="background:#1d4ed8;color:#bfdbfe">SENSOR</span>
+  </div>
+
+  <div class="agent sensor" style="left:56%;top:2%;width:15%"
+    data-tip="Door &amp; Appliance Agent&#10;Monitors front door, stove, faucet. Detects hazards like stove left on and generates high-severity events.">
+    <h3>🚪 Door / Stove</h3><p>Hazards · Entry events</p>
+    <span class="badge" style="background:#1d4ed8;color:#bfdbfe">SENSOR</span>
+  </div>
+
+  <div class="agent sensor" style="left:74%;top:2%;width:15%"
+    data-tip="Glucose &amp; Vitals Agent&#10;Reads continuous glucose monitor and blood pressure cuff. Feeds readings directly into wellness score calculation.">
+    <h3>🩺 Vitals</h3><p>Glucose · Blood pressure</p>
+    <span class="badge" style="background:#1d4ed8;color:#bfdbfe">SENSOR</span>
+  </div>
+
+  <!-- Row 2: Processing -->
+  <div class="agent score" style="left:18%;top:30%;width:22%"
+    data-tip="Wellness Scoring Engine&#10;Aggregates all sensor events into a 0–100 wellness score. Computes 72-hour trend. Score drops trigger anomaly checks.&#10;&#10;Endpoint: POST /patients/{id}/wellness">
+    <h3>📊 Wellness Engine</h3><p>Aggregates sensor data → 0–100 score · 72hr trend · Baseline comparison</p>
+    <span class="badge" style="background:#15803d;color:#bbf7d0">SCORING</span>
+  </div>
+
+  <div class="agent anomaly" style="left:50%;top:30%;width:22%"
+    data-tip="Anomaly Detection Agent&#10;Compares current patterns against Eleanor's baseline. Flags: missed meds, unusual inactivity, fall events, hazardous appliances.&#10;&#10;Triggers escalation when score &lt; threshold.">
+    <h3>🔍 Anomaly Detector</h3><p>Pattern matching · Baseline deviation · Severity scoring</p>
+    <span class="badge" style="background:#d97706;color:#fef3c7">DETECTION</span>
+  </div>
+
+  <!-- Row 3: Orchestration -->
+  <div class="agent escalation" style="left:32%;top:56%;width:26%"
+    data-tip="Escalation Orchestrator&#10;The brain of Haven. Manages the full escalation ladder:&#10;Step 0 → Notify patient (20 min window)&#10;Step 1 → Care coordinator&#10;Step 2 → Family (Sarah Tran)&#10;Step 3 → 911 with full context&#10;&#10;Endpoints: /escalation/trigger, /step1, /step2, /step3">
+    <h3>🧠 Escalation Orchestrator</h3><p>4-step ladder · 20min patient window · Context assembly · 911 dispatch</p>
+    <span class="badge" style="background:#dc2626;color:#fee2e2">ORCHESTRATOR</span>
+  </div>
+
+  <!-- Row 4: Output agents -->
+  <div class="agent notify" style="left:2%;top:78%;width:18%"
+    data-tip="Notification Agent&#10;Sends SMS or voice calls via Twilio. Respects patient preference (SMS vs call). Handles: patient check-in, caregiver alerts, family SOS, 911 briefing.">
+    <h3>📱 Notify Agent</h3><p>SMS · Voice call · Twilio · Per-preference</p>
+    <span class="badge" style="background:#7c3aed;color:#ede9fe">NOTIFY</span>
+  </div>
+
+  <div class="agent qr" style="left:24%;top:78%;width:18%"
+    data-tip="QR Access Agent&#10;Generates per-patient QR codes. Validates responder PINs (EMS, Fire, Hospital, Family). Issues time-limited tokens (4hr, 10 uses). Returns tiered clinical cards.&#10;&#10;Endpoints: /emergency/{id}/verify, /card/{token}">
+    <h3>🔲 QR Agent</h3><p>QR gen · PIN verify · Token issue · Clinical card</p>
+    <span class="badge" style="background:#0d9488;color:#ccfbf1">QR ACCESS</span>
+  </div>
+
+  <div class="agent audit" style="left:46%;top:78%;width:18%"
+    data-tip="HIPAA Audit Agent&#10;Logs every QR scan, PIN attempt, token use, and escalation action with timestamp, responder type, GPS, and access level. Required for HIPAA compliance.&#10;&#10;Endpoint: GET /scan-logs">
+    <h3>📋 Audit Agent</h3><p>HIPAA logging · Scan trail · Access records · Immutable log</p>
+    <span class="badge" style="background:#475569;color:#e2e8f0">AUDIT</span>
+  </div>
+
+  <div class="agent patient" style="left:68%;top:78%;width:18%"
+    data-tip="Patient Response Agent&#10;Listens for Eleanor's YES reply to the check-in SMS. If received within 20 minutes, cancels the escalation ladder entirely. Logs the safe confirmation.&#10;&#10;Endpoint: POST /patients/{id}/respond">
+    <h3>👩‍🦳 Patient Agent</h3><p>Self-check · YES response · Cancel escalation · Safe confirm</p>
+    <span class="badge" style="background:#38bdf8;color:#0c4a6e">PATIENT</span>
+  </div>
+
+  <!-- SVG arrows -->
+  <svg class="arrows" id="arrows">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#334155"/>
+      </marker>
+      <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+      </marker>
+      <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#0d9488"/>
+      </marker>
+    </defs>
+  </svg>
+</div>
+
+<!-- Escalation steps -->
+<div class="steps">
+  <h2>Escalation Ladder</h2>
+  <div class="step-grid">
+    <div class="step-card s0">
+      <div class="num">Step 0</div>
+      <div class="title" style="color:#38bdf8">Notify Eleanor</div>
+      <div class="desc">SMS: "Hi Eleanor, Haven here. Are you feeling okay? Reply YES." — 20 minute response window.</div>
+    </div>
+    <div class="step-card s1">
+      <div class="num">Step 1</div>
+      <div class="title" style="color:#c4b5fd">Care Coordinator</div>
+      <div class="desc">No response. Coordinator alerted with wellness score and last known activity.</div>
+    </div>
+    <div class="step-card s2">
+      <div class="num">Step 2</div>
+      <div class="title" style="color:#fde68a">Family — Sarah</div>
+      <div class="desc">Score still declining. Sarah Tran (daughter) notified via SMS with full context.</div>
+    </div>
+    <div class="step-card s3">
+      <div class="num">Step 3</div>
+      <div class="title" style="color:#fca5a5">911 Dispatch</div>
+      <div class="desc">Fall detected. 911 called with patient name, age, conditions, meds, and last safe activity.</div>
+    </div>
+    <div class="step-card s4">
+      <div class="num">QR Access</div>
+      <div class="title" style="color:#f87171">EMS Arrives</div>
+      <div class="desc">Paramedic scans QR on Eleanor's necklace. Enters EMS PIN → full clinical card in under 5 seconds.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// Draw arrows between agents using element positions
+function midpoint(el) {
+  const r = el.getBoundingClientRect();
+  const cr = document.getElementById('canvas').getBoundingClientRect();
+  return {
+    x: r.left - cr.left + r.width / 2,
+    y: r.top - cr.top + r.height / 2,
+    top: r.top - cr.top,
+    bottom: r.top - cr.top + r.height,
+    left: r.left - cr.left,
+    right: r.left - cr.left + r.width,
+  };
+}
+
+function drawArrow(svg, x1, y1, x2, y2, color='#334155', markerId='arr', dash='') {
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+  line.setAttribute('stroke', color);
+  line.setAttribute('stroke-width', '1.5');
+  line.setAttribute('marker-end', `url(#${markerId})`);
+  if (dash) line.setAttribute('stroke-dasharray', dash);
+  svg.appendChild(line);
+}
+
+function renderArrows() {
+  const svg = document.getElementById('arrows');
+  svg.innerHTML = svg.querySelector('defs').outerHTML;
+
+  const agents = document.querySelectorAll('.agent');
+  const map = {};
+  agents.forEach(a => { map[a.querySelector('h3').textContent.trim().replace(/[^a-z]/gi,'')] = a; });
+
+  const watch   = document.querySelectorAll('.agent.sensor')[0];
+  const pill    = document.querySelectorAll('.agent.sensor')[1];
+  const motion  = document.querySelectorAll('.agent.sensor')[2];
+  const door    = document.querySelectorAll('.agent.sensor')[3];
+  const vitals  = document.querySelectorAll('.agent.sensor')[4];
+  const score   = document.querySelector('.agent.score');
+  const anomaly = document.querySelector('.agent.anomaly');
+  const esc     = document.querySelector('.agent.escalation');
+  const notify  = document.querySelector('.agent.notify');
+  const qr      = document.querySelector('.agent.qr');
+  const audit   = document.querySelector('.agent.audit');
+  const patient = document.querySelector('.agent.patient');
+
+  // Sensors → Wellness engine
+  [watch, pill, motion].forEach(s => {
+    const a = midpoint(s), b = midpoint(score);
+    drawArrow(svg, a.x, a.bottom, b.x, b.top, '#1d4ed8', 'arr');
+  });
+  // Sensors → Anomaly
+  [door, vitals].forEach(s => {
+    const a = midpoint(s), b = midpoint(anomaly);
+    drawArrow(svg, a.x, a.bottom, b.x, b.top, '#1d4ed8', 'arr');
+  });
+  // Wellness → Anomaly
+  { const a = midpoint(score), b = midpoint(anomaly);
+    drawArrow(svg, a.right, a.y, b.left, b.y, '#15803d', 'arr'); }
+  // Anomaly → Escalation
+  { const a = midpoint(anomaly), b = midpoint(esc);
+    drawArrow(svg, a.x, a.bottom, b.x, b.top, '#d97706', 'arr'); }
+  // Wellness → Escalation
+  { const a = midpoint(score), b = midpoint(esc);
+    drawArrow(svg, a.x, a.bottom, b.left + 20, b.top, '#15803d', 'arr', '4,3'); }
+  // Escalation → outputs
+  [notify, qr, audit, patient].forEach(out => {
+    const a = midpoint(esc), b = midpoint(out);
+    drawArrow(svg, a.x, a.bottom, b.x, b.top, '#dc2626', 'arr-red');
+  });
+}
+
+// Tooltip
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('.agent').forEach(el => {
+  el.addEventListener('mouseenter', e => {
+    tooltip.textContent = el.dataset.tip.replace(/&#10;/g,'\\n');
+    tooltip.innerHTML = '<strong>' + el.querySelector('h3').innerHTML + '</strong><br><br>' +
+      el.dataset.tip.replace(/&#10;/g,'<br>');
+    tooltip.classList.add('show');
+  });
+  el.addEventListener('mousemove', e => {
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top  = (e.clientY - 10) + 'px';
+  });
+  el.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+});
+
+window.addEventListener('load', renderArrows);
+window.addEventListener('resize', renderArrows);
+</script>
+</body>
+</html>""")
+
+
+# ---------------------------------------------------------------------------
 # Live Demo Dashboard
 # ---------------------------------------------------------------------------
 
