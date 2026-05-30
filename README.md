@@ -4,21 +4,31 @@ Haven is a full-stack elder care platform that predicts emergencies before they 
 
 ---
 
-## The Problem — We Don't Have a Fall Problem. We Have a Silence Problem.
+## Problem Statement
 
-Every elder care emergency follows the same pattern — not a sudden catastrophe, but a quiet accumulation of warning signs that nobody saw in time:
+**1.4 million older adults live alone in the United States. Every 11 seconds, one of them is treated in an emergency room for a fall. Most of those emergencies were preventable.**
 
-- She missed her morning meds. *Nobody knew.*
-- She didn't open the fridge all day. *Nobody knew.*
-- She hadn't moved in 3 hours. *Nobody knew.*
-- Then she fell.
+The warning signs were there hours before the crisis — a missed medication, an unopened fridge, an unusual silence in the living room. But nobody saw them. Not the family. Not the doctor. Not the caregiver.
 
-By the time 911 is called, the window to prevent serious harm has already closed.
+**Today's elder care system is built entirely around response, not prevention.**
 
-**Today's elder care is reactive by design.**
-Family checks in when they remember. Doctors see patients every 3 months. 911 only gets called after a crisis. There is no system watching the 23 hours and 45 minutes when Eleanor is alone — the space where every emergency actually begins.
+Family checks in when they remember. Physicians see patients every 90 days. Emergency services only activate after a crisis is already in progress. There is no infrastructure watching the 23 hours and 45 minutes between touchpoints — the window where every emergency actually begins.
 
-> Every 11 seconds, an older adult is treated in an ER for a fall. Most of those falls were predictable.
+When something does go wrong, first responders arrive blind. No medication list. No medical history. No context. A paramedic standing over an unconscious 78-year-old has no way to know she's diabetic, on blood thinners, and missed her Lisinopril this morning — unless someone thought to leave a note on the fridge.
+
+**The result:** preventable falls become hospitalizations. Hospitalizations become loss of independence. Loss of independence becomes the end of the life someone built.
+
+---
+
+**Haven exists to close that gap.**
+
+Not by responding faster — but by intervening earlier. By watching the silence between check-ins. By noticing that Eleanor hasn't opened her fridge since yesterday and asking her if she's okay before anyone has to call 911.
+
+And if the worst does happen — if a paramedic is standing at her door — Haven makes sure they have everything they need in under 5 seconds, from a QR code on her necklace.
+
+> **The goal is not better emergency care. The goal is fewer emergencies.**
+
+---
 
 ## The Solution — Prevent the Emergency Before It Happens
 
